@@ -34,13 +34,14 @@ public class WordCountApp {
     public static void main(String[] args) {
 
         Properties properties = new Properties();
-        properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "streams-starter-app");
+        properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "word-count-application");
         properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         properties.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         properties.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
 
         KafkaStreams streams = new KafkaStreams(WordCountApp.createTopology(), properties);
+        System.out.println(streams.toString());
         streams.start();
 
         // shutdown hook to correctly close the streams application
