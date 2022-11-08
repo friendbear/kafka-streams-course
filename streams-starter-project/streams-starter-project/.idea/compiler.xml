@@ -7,6 +7,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="streams-starter-project" />
+        <module name="favouritee-color-java" />
+        <module name="word-count" />
       </profile>
     </annotationProcessing>
   </component>

@@ -13,6 +13,7 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 
@@ -29,13 +30,16 @@ public class TweetUserCountApp {
         //final Serde<JsonNode> jsonSerde = Serdes.serdeFrom(jsonSerializer, jsonDeserializer);
 
         //KStream<String, String> wordCountInput = builder.stream("word-count-input");
-        KStream<String, Long> tweetsInput = builder.stream("twitter_tweets");
+        KStream<String, String> tweetsInput = builder.stream("twitter_tweets");
+        //KTable<String, Long> tableOutput = builder.table("twitter_tweets_table");
 
-        var wordCounts = tweetsInput.selectKey((k, v) -> k)
+        var tweetCounts = tweetsInput.selectKey((k, v) -> k)
                 .groupByKey()
                 .count(Materialized.as("Counts"));
 
-        wordCounts.toStream().to("word-count-output", Produced.with(Serdes.String(), Serdes.Long()));
+        tweetCounts.toStream().to("word-count-output", Produced.with(Serdes.String(), Serdes.Long()));
+        //tableOutput.toStream().to("twitter_tweets_table");
+
 
         return builder.build();
 

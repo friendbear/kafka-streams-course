@@ -2,4 +2,10 @@
 target/classes
 .DS_Store
 .vscode
-
+.idea
+tweet-user-count/target
+word-count/target
+streams-starter-project/streams-starter-project/target
+streams-starter-project/streams-starter-project/.idea
+streams-starter-project/streams-starter-project/.idea
+streams-starter-project/streams-starter-project/.idea

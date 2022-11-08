@@ -13,12 +13,14 @@ import org.apache.kafka.streams.kstream.Produced;
 import java.util.Arrays;
 import java.util.Properties;
 
+
 public class WordCountApp {
 
     public static Topology createTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<String, String> wordCountInput = builder.stream("word-count-input");
+        //KStream<String, String> wordCountInput = builder.stream("word-count-input");
+        KStream<String, String> wordCountInput = builder.stream("twitter_tweets");
 
         var wordCounts = wordCountInput.mapValues(value -> value.toLowerCase())
                 .flatMapValues(value -> Arrays.asList(value.split(" ")))
