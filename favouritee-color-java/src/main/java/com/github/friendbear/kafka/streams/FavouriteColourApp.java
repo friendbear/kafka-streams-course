@@ -1,10 +1,18 @@
 package com.github.friendbear.kafka.streams;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.state.KeyValueStore;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -32,5 +40,30 @@ public class FavouriteColourApp {
                 .filter((user, colour) -> Arrays.asList("green", "blue", "red").contains(colour));
 
         usersAndColours.to("user-keys-and-colours");
+
+        Serde<String> stringSerde = Serdes.String();
+        Serde<Long> longSerde = Serdes.Long();
+
+        // step 2 - we read that topic as a KTable so that updates are read correctly
+        KTable<String, String> usersAndColoursTable = builder.table("user-keys-and-colours");
+
+        // step 3 - we count the occurences of colours
+        KTable<String, Long> favouriteColours = usersAndColoursTable
+                .groupBy((user, colour) -> new KeyValue<>(colour, colour))
+                .count(Materialized.<String, Long, KeyValueStore<Bytes, byte[]>>as("CountsByColours")
+                        .withKeySerde(stringSerde)
+                        .withValueSerde(longSerde)
+                );
+
+        favouriteColours.toStream().to("favourite-colour-output",
+                Produced.with(Serdes.String(), Serdes.Long()));
+
+        var streams = new KafkaStreams(builder.build(), config);
+        streams.cleanUp();
+        streams.start();
+
+        streams.metadataForLocalThreads().forEach(data -> System.out.println(data));
+
+        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
 }
